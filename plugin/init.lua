@@ -20,23 +20,23 @@ function LWL.init(ws)
 	wezterm.on(EVENT_NAME, function(_, label)
 		local current_ws = LWL.get_workspace_by_label(label)
 
-		if ws == nil then
+		if current_ws == nil then
 			wezterm.log_error("lazy-workspace-layout: workspace not found by label: " .. label)
 			return
 		end
 
-		if ws["is_initialized"] == nil then
+		if current_ws["is_initialized"] == nil then
 			local window = LWL.get_active_window_by_workspace_label(label)
 			if window == nil then
 				wezterm.log_error("lazy-workspace-layout: window not found by label: " .. label)
 				return
 			end
-			wezterm.log_info("lazy-workspace-layout: apply layout " .. ws["label"])
+			wezterm.log_info("lazy-workspace-layout: apply layout " .. current_ws["label"])
 			current_ws.layout(window, window:active_pane(), current_ws)
 
-			ws["is_initialized"] = true
+			current_ws["is_initialized"] = true
 		else
-			wezterm.log_info("lazy-workspace-layout: switched to " .. ws["label"])
+			wezterm.log_info("lazy-workspace-layout: switched to " .. current_ws["label"])
 		end
 	end)
 end

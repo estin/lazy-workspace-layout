@@ -25,7 +25,9 @@ function LWL.init(ws)
 			return
 		end
 
-		if current_ws["is_initialized"] == nil then
+		if LWL.is_workspace_initialized(label) == true then
+			wezterm.log_info("lazy-workspace-layout: switched to " .. current_ws["label"])
+		else
 			local window = LWL.get_active_window_by_workspace_label(label)
 			if window == nil then
 				wezterm.log_error("lazy-workspace-layout: window not found by label: " .. label)
@@ -34,9 +36,7 @@ function LWL.init(ws)
 			wezterm.log_info("lazy-workspace-layout: apply layout " .. current_ws["label"])
 			current_ws.layout(window, window:active_pane(), current_ws)
 
-			current_ws["is_initialized"] = true
-		else
-			wezterm.log_info("lazy-workspace-layout: switched to " .. current_ws["label"])
+			LWL.mark_workspace_as_initialized(label)
 		end
 	end)
 end
@@ -84,6 +84,26 @@ function LWL.get_active_window_by_workspace_label(label)
 			return item
 		end
 	end
+end
+
+function LWL.is_workspace_initialized(label)
+	local flags = wezterm.GLOBAL.lwl_initialized_workspaces
+	if flags == nil then
+		return false
+	end
+	local is_initialized = flags[label]
+	if is_initialized == nil then
+		return false
+	end
+	return is_initialized
+end
+
+function LWL.mark_workspace_as_initialized(label)
+	local flags = wezterm.GLOBAL.lwl_initialized_workspaces
+	if flags == nil then
+		wezterm.GLOBAL.lwl_initialized_workspaces = {}
+	end
+	wezterm.GLOBAL.lwl_initialized_workspaces[label] = true
 end
 
 return LWL

@@ -4,18 +4,27 @@ local EVENT_NAME = "lazy-workspace-layout-switched"
 
 local LWL = {}
 
-local workspaces = {}
+local workspaces = {
+	{
+		id = ".",
+		label = "default",
+	},
+}
 local choices = {}
 
 function LWL.init(ws)
-	workspaces = ws
+	for _, v in ipairs(ws) do
+		table.insert(workspaces, v)
+	end
 
-	for _, item in ipairs(ws) do
+	for _, item in ipairs(workspaces) do
 		table.insert(choices, {
 			id = item["cwd"],
 			label = item["label"],
 		})
 	end
+
+	LWL.mark_workspace_as_initialized("default")
 
 	wezterm.on(EVENT_NAME, function(_, label)
 		local current_ws = LWL.get_workspace_by_label(label)
@@ -70,6 +79,13 @@ function LWL.bind()
 end
 
 -- utils
+local function or_default(v, default)
+	if v == nil then
+		return default
+	end
+	return v
+end
+
 function LWL.get_workspace_by_label(label)
 	for _, item in ipairs(workspaces) do
 		if item["label"] == label then
@@ -104,6 +120,30 @@ function LWL.mark_workspace_as_initialized(label)
 		wezterm.GLOBAL.lwl_initialized_workspaces = {}
 	end
 	wezterm.GLOBAL.lwl_initialized_workspaces[label] = true
+end
+
+function LWL.new_tab(window, options, split, text)
+	local tab, pane, window = window:spawn_tab(or_default(options, {}))
+	tab:set_title(or_default(options.title, "new tab"))
+
+	if text ~= nil then
+		pane:send_text(text .. "\n")
+	end
+
+	local split_options = or_default(split, { N = 0 })
+
+	for _ = 1, or_default(split_options.N, 0), 1 do
+		local new_pane = pane:split({
+			direction = or_default(split_options.direction, "Top"),
+			size = or_default(split_options.size, 0.5),
+			cwd = options.cwd,
+		})
+
+		if text ~= nil then
+			new_pane:send_text(text .. "\n")
+		end
+	end
+	return tab
 end
 
 return LWL

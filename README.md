@@ -1,5 +1,5 @@
 # lazy-workspace-layout
-Wezterm plugin for lazy worskpace layout 
+Wezterm plugin for lazy worskpace layout
 
 
 Based on [Aaron's Dev Blog](https://www.railsdev.dev/blog/wezterm-workspace-switcher-api/)
@@ -42,3 +42,8 @@ return {
 	},
 }
 ```
+
+### Similar projects
+
+- [MLFlexer/smart_workspace_switcher.wezterm](https://github.com/MLFlexer/smart_workspace_switcher.wezterm)
+- [isseii10/workspace-picker.wezterm](https://github.com/isseii10/workspace-picker.wezterm)
